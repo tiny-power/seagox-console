@@ -61,7 +61,7 @@
             </div>
         </div>
         <!--打印模板-->
-        <el-dialog title="通过模板创建" width="580px" :visible.sync="printVisible" :close-on-click-modal="false">
+        <el-dialog title="通过Word模板创建" width="580px" :visible.sync="printVisible" :close-on-click-modal="false">
             <div style="color: #7d7e80; font-size: 13px">
                 <div style="background: #f1f3f7; border-radius: 8px; padding: 8px 8px">
                     <div style="display: flex; align-items: center; line-height: 30px">
@@ -70,7 +70,7 @@
                         >
                             &nbsp;
                         </div>
-                        <div>请在本地的Word、Excel文件中编辑模板内容和样式;</div>
+                        <div>请在本地的Word文件中编辑模板内容和样式;</div>
                     </div>
                     <div style="display: flex; align-items: center; line-height: 30px">
                         <div
@@ -83,7 +83,6 @@
                             >将所需的字段对应的字段代码复制、粘贴到Word、
                         </div>
                     </div>
-                    <div>Excel模板中对应的位置;</div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; line-height: 48px">
                     <div style="color: #000; font-weight: bold; font-size: 15px">上传模板</div>
@@ -109,7 +108,7 @@
                                 color: #333;
                             "
                         >
-                            <i class="el-icon-upload2"> 上传Word、Excel模板</i>
+                            <i class="el-icon-upload2"> 上传Word模板</i>
                         </div>
                         <div slot="file" slot-scope="{ file }" style="display: flex">
                             <a
@@ -130,7 +129,7 @@
                         >
                             &nbsp;
                         </div>
-                        <div>请上传.docx、.xlsx格式文件;</div>
+                        <div>请上传.docx格式文件;</div>
                     </div>
                     <div style="display: flex; align-items: center; line-height: 24px">
                         <div
@@ -145,7 +144,6 @@
                 <div style="margin: 15px 0px">
                     <el-radio-group v-model="printType">
                         <el-radio label="word">Word</el-radio>
-                        <el-radio label="excel">Excel</el-radio>
                         <el-radio label="pdf">PDF</el-radio>
                     </el-radio-group>
                 </div>
@@ -297,8 +295,8 @@ export default {
         },
         beforeWordUpload(file) {
             const suffix = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase()
-            if (suffix != 'docx' && suffix != 'xlsx' && suffix != 'xls') {
-                this.$message.error(`只能选择Word或Excel文件`)
+            if (suffix != 'docx') {
+                this.$message.error(`只能选择Word文件`)
                 return false
             }
             const fileSize = file.size / 1024 / 1024 < 10
