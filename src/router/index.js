@@ -29,24 +29,6 @@ const routes = [
         component: () => import('@/views/layout/login')
     },
     {
-        name: 'addForm',
-        path: '/addForm',
-        component: () => import('@/views/platform/add-form'),
-        meta: {
-            keepAlive: true,
-            title: '添加表单'
-        }
-    },
-    {
-        name: 'editForm',
-        path: '/editForm',
-        component: () => import('@/views/platform/edit-form'),
-        meta: {
-            keepAlive: true,
-            title: '编辑表单'
-        }
-    },
-    {
         path: '/flowDesigner',
         name: 'flowDesigner',
         component: () => import('@/views/flow/flow-designer'),
@@ -60,38 +42,6 @@ const routes = [
         component: () => import('@/views/flow/flow-designer-senior'),
         meta: {
             title: '流程设计'
-        }
-    },
-    {
-        name: 'gaugeSetting',
-        path: '/gaugeSetting',
-        component: () => import('@/views/platform/gauge-setting'),
-        meta: {
-            title: '仪表板设计'
-        }
-    },
-    {
-        name: 'authority',
-        path: '/authority',
-        component: () => import('@/views/platform/authority'),
-        meta: {
-            title: '权限设置'
-        }
-    },
-    {
-        name: 'javascript',
-        path: '/javascript',
-        component: () => import('@/views/platform/javascript'),
-        meta: {
-            title: '动作脚本'
-        }
-    },
-    {
-        name: 'sql',
-        path: '/sql',
-        component: () => import('@/views/platform/sql'),
-        meta: {
-            title: 'SQL配置'
         }
     },
     {
@@ -118,24 +68,6 @@ const routes = [
                 }
             },
             {
-                name: 'businessTable',
-                path: '/businessTable',
-                component: () => import('@/views/platform/business-table'),
-                meta: {
-                    title: '数据建模',
-                    keepAlive: true
-                }
-            },
-            {
-                name: 'businessField',
-                path: '/businessField',
-                component: () => import('@/views/platform/business-field'),
-                meta: {
-                    title: '设计表',
-                    keepAlive: true
-                }
-            },
-            {
                 name: 'taskScheduler',
                 path: '/taskScheduler',
                 component: () => import('@/views/platform/task-scheduler'),
@@ -150,33 +82,6 @@ const routes = [
                 component: () => import('@/views/platform/dic'),
                 meta: {
                     title: '数据字典',
-                    keepAlive: true
-                }
-            },
-            {
-                name: 'form',
-                path: '/form',
-                component: () => import('@/views/platform/form'),
-                meta: {
-                    title: '表单管理',
-                    keepAlive: true
-                }
-            },
-            {
-                name: 'gauge',
-                path: '/gauge',
-                component: () => import('@/views/platform/gauge'),
-                meta: {
-                    title: '仪表板',
-                    keepAlive: true
-                }
-            },
-            {
-                name: 'door',
-                path: '/door',
-                component: () => import('@/views/platform/door'),
-                meta: {
-                    title: '门户管理',
                     keepAlive: true
                 }
             },
@@ -199,29 +104,11 @@ const routes = [
                 }
             },
             {
-                name: 'import',
-                path: '/import',
-                component: () => import('@/views/platform/import'),
-                meta: {
-                    title: '导入配置',
-                    keepAlive: true
-                }
-            },
-            {
                 name: 'flow',
                 path: '/flow',
                 component: () => import('@/views/platform/flow-definition'),
                 meta: {
                     title: '流程设计',
-                    keepAlive: true
-                }
-            },
-            {
-                name: 'serial',
-                path: '/serial',
-                component: () => import('@/views/platform/serial'),
-                meta: {
-                    title: '编号设置',
                     keepAlive: true
                 }
             }

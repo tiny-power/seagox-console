@@ -11,24 +11,6 @@
                 <div class="title">组织架构</div>
             </div>
             <div>
-                <div class="content" @click="handleClick('/businessTable')">
-                    <div
-                        class="content-icon"
-                        :style="{ 'background-image': `url(${require('@/assets/plugin/model.png')})` }"
-                    ></div>
-                </div>
-                <div class="title">数据建模</div>
-            </div>
-            <div>
-                <div class="content" @click="handleClick('/form')">
-                    <div
-                        class="content-icon"
-                        :style="{ 'background-image': `url(${require('@/assets/plugin/form.png')})` }"
-                    ></div>
-                </div>
-                <div class="title">表单管理</div>
-            </div>
-            <div>
                 <div class="content" @click="handleClick('/menu')">
                     <div
                         class="content-icon"
@@ -46,26 +28,6 @@
                 </div>
                 <div class="title">定时任务</div>
             </div>
-        </div>
-        <div class="container">
-            <div>
-                <div class="content" @click="handleClick('/gauge')">
-                    <div
-                        class="content-icon"
-                        :style="{ 'background-image': `url(${require('@/assets/plugin/gauge.png')})` }"
-                    ></div>
-                </div>
-                <div class="title">仪表板</div>
-            </div>
-            <div>
-                <div class="content" @click="handleClick('/door')">
-                    <div
-                        class="content-icon"
-                        :style="{ 'background-image': `url(${require('@/assets/plugin/door.png')})` }"
-                    ></div>
-                </div>
-                <div class="title">门户管理</div>
-            </div>
             <div>
                 <div class="content" @click="handleClick('/dic')">
                     <div
@@ -74,15 +36,6 @@
                     ></div>
                 </div>
                 <div class="title">数据字典</div>
-            </div>
-            <div>
-                <div class="content" @click="handleClick('/serial')">
-                    <div
-                        class="content-icon"
-                        :style="{ 'background-image': `url(${require('@/assets/plugin/serial.png')})` }"
-                    ></div>
-                </div>
-                <div class="title">编号设置</div>
             </div>
             <div>
                 <div class="content" @click="handleClick('/log')">
