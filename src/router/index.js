@@ -108,7 +108,7 @@ const routes = [
                 path: '/flow',
                 component: () => import('@/views/platform/flow-definition'),
                 meta: {
-                    title: '流程设计',
+                    title: '流程定义',
                     keepAlive: true
                 }
             }

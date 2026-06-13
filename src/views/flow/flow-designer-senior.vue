@@ -229,7 +229,7 @@ export default {
             if (res.data.code == 200) {
                 this.form = res.data.data
                 let variable = []
-                let fieldOptions = this.form.operationAuthority
+                let fieldOptions = this.form.operationAuthority || []
                 for (let i = 0; i < fieldOptions.length; i++) {
                     let field = fieldOptions[i]
                     variable.push({ value: field.field, label: field.comment })

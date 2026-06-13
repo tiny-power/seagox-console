@@ -38,6 +38,15 @@
                 <div class="title">数据字典</div>
             </div>
             <div>
+                <div class="content" @click="handleClick('/flow')">
+                    <div
+                        class="content-icon"
+                        :style="{ 'background-image': `url(${require('@/assets/plugin/model.png')})` }"
+                    ></div>
+                </div>
+                <div class="title">流程定义</div>
+            </div>
+            <div>
                 <div class="content" @click="handleClick('/log')">
                     <div
                         class="content-icon"
@@ -95,9 +104,11 @@ export default {
 <style scoped>
 .container {
     display: flex;
-    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 28px 60px;
+    justify-content: flex-start;
     align-items: center;
-    padding: 20px 0px;
+    padding: 20px 40px;
 }
 .content {
     padding: 28px;

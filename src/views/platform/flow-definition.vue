@@ -1,14 +1,52 @@
 <template>
     <div>
-        <div class="toolView">
-            <el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
+        <div class="searchView">
+            <el-form label-width="80px" :inline="true">
+                <el-form-item label="业务类型">
+                    <el-select
+                        v-model="searchForm.businessType"
+                        clearable
+                        placeholder="请选择业务类型"
+                        :disabled="businessTypeLocked"
+                    >
+                        <el-option
+                            v-for="item in businessTypeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="名称">
+                    <el-input v-model.trim="searchForm.name" clearable placeholder="请输入名称"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                    <el-button type="primary" plain icon="el-icon-plus" @click="showAddDialog">新增</el-button>
+                </el-form-item>
+            </el-form>
         </div>
-        <div style="padding: 0px 15px">
+        <div class="table">
             <!--列表-->
-            <el-table :data="tableData" border>
+            <el-table :data="tableData" border highlight-current-row :max-height="clientHeight - 255">
                 <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+                <el-table-column
+                    prop="businessType"
+                    label="业务类型"
+                    align="center"
+                    :formatter="businessTypeFormatter"
+                ></el-table-column>
                 <el-table-column prop="name" label="名称" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column label="流程文件" align="center" width="100">
+                    <template slot-scope="scope">
+                        <el-tag :type="isDefaultFlow(scope.row.resources) ? 'info' : 'success'" size="small">
+                            {{ isDefaultFlow(scope.row.resources) ? '默认' : '已设计' }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="createTime" label="创建时间" align="center" width="180"></el-table-column>
+                <el-table-column prop="updateTime" label="修改时间" align="center" width="180"></el-table-column>
+                <el-table-column label="操作" align="center" width="260">
                     <template slot-scope="scope">
                         <el-button type="text" size="small" @click="showAuthorizationDialog(scope.row)">授权</el-button>
                         <el-divider direction="vertical"></el-divider>
@@ -20,10 +58,36 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @current-change="handleCurrentChange"
+                    layout="total, prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size.sync="pageSize"
+                    :total="total"
+                >
+                </el-pagination>
+            </div>
         </div>
         <!--新增界面-->
         <el-dialog title="新增" width="500px" :visible.sync="addFormVisible" :close-on-click-modal="false">
-            <el-form :model="addForm" label-width="60px" :rules="rules" ref="addForm">
+            <el-form :model="addForm" label-width="80px" :rules="rules" ref="addForm">
+                <el-form-item label="业务类型" prop="businessType">
+                    <el-select
+                        v-model="addForm.businessType"
+                        placeholder="请选择业务类型"
+                        :disabled="businessTypeLocked"
+                    >
+                        <el-option
+                            v-for="item in businessTypeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
                 </el-form-item>
@@ -35,7 +99,21 @@
         </el-dialog>
         <!--编辑界面-->
         <el-dialog title="编辑" width="500px" :visible.sync="editFormVisible" :close-on-click-modal="false">
-            <el-form :model="editForm" label-width="60px" :rules="rules" ref="editForm">
+            <el-form :model="editForm" label-width="80px" :rules="rules" ref="editForm">
+                <el-form-item label="业务类型" prop="businessType">
+                    <el-select
+                        v-model="editForm.businessType"
+                        placeholder="请选择业务类型"
+                        :disabled="businessTypeLocked"
+                    >
+                        <el-option
+                            v-for="item in businessTypeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
                 </el-form-item>
@@ -57,22 +135,52 @@ export default {
     },
     data() {
         return {
+            clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
             tableData: [],
+            pageNo: 1,
+            pageSize: 10,
+            total: 0,
+            businessTypeOptions: [{ value: 'leave_request', label: '请假单' }],
+            searchForm: {
+                businessType: 'leave_request',
+                name: ''
+            },
             addFormVisible: false,
             addForm: {
+                businessType: '',
                 name: '',
                 empower: []
             },
             editFormVisible: false,
             editForm: {
                 id: '',
+                businessType: '',
                 name: '',
                 empower: []
             },
             rules: {
+                businessType: [{ required: true, message: '请选择业务类型', trigger: 'change' }],
                 name: [{ required: true, message: '请输入名称', trigger: 'blur' }]
-            },
-            resources: {
+            }
+        }
+    },
+    computed: {
+        businessTypeLocked() {
+            return !!this.$route.query.id
+        }
+    },
+    created() {
+        if (this.$route.query.id) {
+            this.searchForm.businessType = String(this.$route.query.id)
+        }
+        if (!this.businessTypeOptions.some(item => item.value === this.searchForm.businessType)) {
+            this.searchForm.businessType = 'leave_request'
+        }
+        this.queryByPage()
+    },
+    methods: {
+        defaultResources() {
+            return {
                 nodes: [
                     {
                         id: 'start',
@@ -97,38 +205,63 @@ export default {
                     }
                 ]
             }
-        }
-    },
-    created() {
-        this.queryByFormId()
-    },
-    methods: {
-        async queryByFormId() {
-            let res = await this.$axios.get('seaDefinition/queryByFormId/' + this.$route.query.id)
+        },
+        handleSearch() {
+            this.pageNo = 1
+            this.queryByPage()
+        },
+        handleCurrentChange() {
+            this.queryByPage()
+        },
+        async queryByPage() {
+            let params = {
+                pageNo: this.pageNo,
+                pageSize: this.pageSize,
+                businessType: this.searchForm.businessType,
+                name: this.searchForm.name
+            }
+            let res = await this.$axios.get('seaDefinition/queryByPage', { params })
             if (res.data.code == 200) {
-                this.tableData = res.data.data
+                this.tableData = res.data.data.list
+                this.total = res.data.data.total
             }
         },
-        showAddDialog() {
-            this.addFormVisible = true
-            if (this.$refs.addForm) {
-                this.$refs.addForm.resetFields()
+        async showAddDialog() {
+            let businessType = this.searchForm.businessType || 'leave_request'
+            if (await this.hasBusinessTypeDefinition(businessType)) {
+                this.$message.warning('该业务类型已存在流程定义')
+                return
             }
+            this.addForm = {
+                businessType,
+                name: '',
+                empower: []
+            }
+            this.addFormVisible = true
+            this.$nextTick(() => {
+                if (this.$refs.addForm) {
+                    this.$refs.addForm.clearValidate()
+                }
+            })
+        },
+        async hasBusinessTypeDefinition(businessType) {
+            let res = await this.$axios.get('seaDefinition/queryByBusinessType/' + encodeURIComponent(businessType))
+            return res.data.code == 200 && res.data.data && res.data.data.length > 0
         },
         addSubmit() {
             this.$refs.addForm.validate(valid => {
                 if (valid) {
                     var params = {
-                        formId: this.$route.query.id,
+                        businessType: this.addForm.businessType,
                         name: this.addForm.name,
-                        resources: JSON.stringify(this.resources),
+                        resources: JSON.stringify(this.defaultResources()),
                         empower: JSON.stringify(this.addForm.empower)
                     }
                     this.$axios.post('seaDefinition/insert', params).then(res => {
                         if (res.data.code == 200) {
                             this.$message.success('新增成功')
                             this.addFormVisible = false
-                            this.queryByFormId()
+                            this.queryByPage()
                         } else {
                             this.$message.error(res.data.message)
                         }
@@ -137,17 +270,25 @@ export default {
             })
         },
         showEditDialog(row) {
-            this.editForm = Object.assign({}, row)
-            this.editFormVisible = true
-            if (this.$refs.editForm) {
-                this.$refs.editForm.resetFields()
+            this.editForm = {
+                id: row.id,
+                businessType: row.businessType,
+                name: row.name,
+                empower: row.empower || '[]'
             }
+            this.editFormVisible = true
+            this.$nextTick(() => {
+                if (this.$refs.editForm) {
+                    this.$refs.editForm.clearValidate()
+                }
+            })
         },
         editSubmit() {
             this.$refs.editForm.validate(valid => {
                 if (valid) {
                     var params = {
                         id: this.editForm.id,
+                        businessType: this.editForm.businessType,
                         name: this.editForm.name,
                         empower: this.editForm.empower
                     }
@@ -155,7 +296,7 @@ export default {
                         if (res.data.code == 200) {
                             this.$message.success('修改成功')
                             this.editFormVisible = false
-                            this.queryByFormId()
+                            this.queryByPage()
                         } else {
                             this.$message.error(res.data.message)
                         }
@@ -164,9 +305,13 @@ export default {
             })
         },
         designSubmit(row) {
+            let query = { id: row.id, title: row.name }
+            if (this.$route.query.dataSource) {
+                query.dataSource = this.$route.query.dataSource
+            }
             let routeData = this.$router.resolve({
                 path: '/flowDesigner',
-                query: { id: row.id, title: row.name, dataSource: this.$route.query.dataSource }
+                query
             })
             window.open(routeData.href, '_blank')
         },
@@ -175,7 +320,7 @@ export default {
                 this.$axios.post('seaDefinition/delete/' + row.id, {}).then(res => {
                     if (res.data.code == 200) {
                         this.$message.success('删除成功')
-                        this.queryByFormId()
+                        this.queryByPage()
                     } else {
                         this.$message.error(res.data.message)
                     }
@@ -184,7 +329,7 @@ export default {
         },
         showAuthorizationDialog(row) {
             this.editForm = Object.assign({}, row)
-            let empower = JSON.parse(row.empower)
+            let empower = this.parseEmpower(row.empower)
             this.$refs.common.showDialog(empower)
         },
         memberConfirm(value) {
@@ -196,11 +341,36 @@ export default {
                 if (res.data.code == 200) {
                     this.$message.success('修改成功')
                     this.editFormVisible = false
-                    this.queryByFormId()
+                    this.queryByPage()
                 } else {
                     this.$message.error(res.data.message)
                 }
             })
+        },
+        parseEmpower(value) {
+            if (!value) {
+                return []
+            }
+            try {
+                return JSON.parse(value)
+            } catch (e) {
+                return []
+            }
+        },
+        isDefaultFlow(resources) {
+            if (!resources) {
+                return true
+            }
+            try {
+                let value = JSON.parse(resources)
+                return value.nodes.length <= 2 && value.edges.length <= 1
+            } catch (e) {
+                return false
+            }
+        },
+        businessTypeFormatter(row) {
+            let item = this.businessTypeOptions.find(item => item.value === row.businessType)
+            return item ? item.label : row.businessType
         }
     }
 }
