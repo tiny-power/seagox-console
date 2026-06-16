@@ -220,7 +220,7 @@ export default {
                 businessType: this.searchForm.businessType,
                 name: this.searchForm.name
             }
-            let res = await this.$axios.get('seaDefinition/queryByPage', { params })
+            let res = await this.$axios.get('flow/queryByPage', { params })
             if (res.data.code == 200) {
                 this.tableData = res.data.data.list
                 this.total = res.data.data.total
@@ -245,7 +245,7 @@ export default {
             })
         },
         async hasBusinessTypeDefinition(businessType) {
-            let res = await this.$axios.get('seaDefinition/queryByBusinessType/' + encodeURIComponent(businessType))
+            let res = await this.$axios.get('flow/queryByBusinessType/' + encodeURIComponent(businessType))
             return res.data.code == 200 && res.data.data && res.data.data.length > 0
         },
         addSubmit() {
@@ -257,7 +257,7 @@ export default {
                         resources: JSON.stringify(this.defaultResources()),
                         empower: JSON.stringify(this.addForm.empower)
                     }
-                    this.$axios.post('seaDefinition/insert', params).then(res => {
+                    this.$axios.post('flow/insert', params).then(res => {
                         if (res.data.code == 200) {
                             this.$message.success('新增成功')
                             this.addFormVisible = false
@@ -292,7 +292,7 @@ export default {
                         name: this.editForm.name,
                         empower: this.editForm.empower
                     }
-                    this.$axios.post('seaDefinition/update', params).then(res => {
+                    this.$axios.post('flow/update', params).then(res => {
                         if (res.data.code == 200) {
                             this.$message.success('修改成功')
                             this.editFormVisible = false
@@ -317,7 +317,7 @@ export default {
         },
         deleteSubmit(row) {
             this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
-                this.$axios.post('seaDefinition/delete/' + row.id, {}).then(res => {
+                this.$axios.post('flow/delete/' + row.id, {}).then(res => {
                     if (res.data.code == 200) {
                         this.$message.success('删除成功')
                         this.queryByPage()
@@ -337,7 +337,7 @@ export default {
                 id: this.editForm.id,
                 empower: JSON.stringify(value)
             }
-            this.$axios.post('seaDefinition/update', params).then(res => {
+            this.$axios.post('flow/update', params).then(res => {
                 if (res.data.code == 200) {
                     this.$message.success('修改成功')
                     this.editFormVisible = false

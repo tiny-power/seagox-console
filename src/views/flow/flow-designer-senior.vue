@@ -225,7 +225,7 @@ export default {
             let params = {
                 dataSource: this.$route.query.dataSource
             }
-            let res = await this.$axios.get('seaDefinition/queryById/' + this.$route.query.id, { params })
+            let res = await this.$axios.get('flow/queryById/' + this.$route.query.id, { params })
             if (res.data.code == 200) {
                 this.form = res.data.data
                 let variable = []
@@ -729,7 +729,7 @@ export default {
                 empower: this.form.empower,
                 resources: JSON.stringify(resource)
             }
-            this.$axios.post('seaDefinition/update', params).then(res => {
+            this.$axios.post('flow/update', params).then(res => {
                 if (res.data.code == 200) {
                     this.$message.success('发布成功')
                 } else {
