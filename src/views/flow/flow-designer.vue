@@ -293,7 +293,6 @@ export default {
             var params = {
                 id: this.$route.query.id,
                 dataSource: this.form.dataSource,
-                empower: this.form.empower,
                 resources: JSON.stringify(resource)
             }
             this.$axios.post('flow/update', params).then(res => {

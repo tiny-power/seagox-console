@@ -37,19 +37,10 @@
                     :formatter="businessTypeFormatter"
                 ></el-table-column>
                 <el-table-column prop="name" label="名称" align="center"></el-table-column>
-                <el-table-column label="流程文件" align="center" width="100">
-                    <template slot-scope="scope">
-                        <el-tag :type="isDefaultFlow(scope.row.resources) ? 'info' : 'success'" size="small">
-                            {{ isDefaultFlow(scope.row.resources) ? '默认' : '已设计' }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center" width="180"></el-table-column>
                 <el-table-column prop="updateTime" label="修改时间" align="center" width="180"></el-table-column>
                 <el-table-column label="操作" align="center" width="260">
                     <template slot-scope="scope">
-                        <el-button type="text" size="small" @click="showAuthorizationDialog(scope.row)">授权</el-button>
-                        <el-divider direction="vertical"></el-divider>
                         <el-button type="text" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
                         <el-divider direction="vertical"></el-divider>
                         <el-button type="text" size="small" @click="designSubmit(scope.row)">设计</el-button>
@@ -123,16 +114,11 @@
                 <el-button type="primary" @click="editSubmit">提交</el-button>
             </div>
         </el-dialog>
-        <common ref="common" @confirm="memberConfirm" />
     </div>
 </template>
 
 <script>
-import common from '@/views/components/form/common'
 export default {
-    components: {
-        common
-    },
     data() {
         return {
             clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
@@ -148,15 +134,13 @@ export default {
             addFormVisible: false,
             addForm: {
                 businessType: '',
-                name: '',
-                empower: []
+                name: ''
             },
             editFormVisible: false,
             editForm: {
                 id: '',
                 businessType: '',
-                name: '',
-                empower: []
+                name: ''
             },
             rules: {
                 businessType: [{ required: true, message: '请选择业务类型', trigger: 'change' }],
@@ -234,8 +218,7 @@ export default {
             }
             this.addForm = {
                 businessType,
-                name: '',
-                empower: []
+                name: ''
             }
             this.addFormVisible = true
             this.$nextTick(() => {
@@ -254,8 +237,7 @@ export default {
                     var params = {
                         businessType: this.addForm.businessType,
                         name: this.addForm.name,
-                        resources: JSON.stringify(this.defaultResources()),
-                        empower: JSON.stringify(this.addForm.empower)
+                        resources: JSON.stringify(this.defaultResources())
                     }
                     this.$axios.post('flow/insert', params).then(res => {
                         if (res.data.code == 200) {
@@ -273,8 +255,7 @@ export default {
             this.editForm = {
                 id: row.id,
                 businessType: row.businessType,
-                name: row.name,
-                empower: row.empower || '[]'
+                name: row.name
             }
             this.editFormVisible = true
             this.$nextTick(() => {
@@ -289,8 +270,7 @@ export default {
                     var params = {
                         id: this.editForm.id,
                         businessType: this.editForm.businessType,
-                        name: this.editForm.name,
-                        empower: this.editForm.empower
+                        name: this.editForm.name
                     }
                     this.$axios.post('flow/update', params).then(res => {
                         if (res.data.code == 200) {
@@ -326,47 +306,6 @@ export default {
                     }
                 })
             })
-        },
-        showAuthorizationDialog(row) {
-            this.editForm = Object.assign({}, row)
-            let empower = this.parseEmpower(row.empower)
-            this.$refs.common.showDialog(empower)
-        },
-        memberConfirm(value) {
-            var params = {
-                id: this.editForm.id,
-                empower: JSON.stringify(value)
-            }
-            this.$axios.post('flow/update', params).then(res => {
-                if (res.data.code == 200) {
-                    this.$message.success('修改成功')
-                    this.editFormVisible = false
-                    this.queryByPage()
-                } else {
-                    this.$message.error(res.data.message)
-                }
-            })
-        },
-        parseEmpower(value) {
-            if (!value) {
-                return []
-            }
-            try {
-                return JSON.parse(value)
-            } catch (e) {
-                return []
-            }
-        },
-        isDefaultFlow(resources) {
-            if (!resources) {
-                return true
-            }
-            try {
-                let value = JSON.parse(resources)
-                return value.nodes.length <= 2 && value.edges.length <= 1
-            } catch (e) {
-                return false
-            }
         },
         businessTypeFormatter(row) {
             let item = this.businessTypeOptions.find(item => item.value === row.businessType)
