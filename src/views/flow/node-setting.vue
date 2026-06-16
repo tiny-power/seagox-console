@@ -36,7 +36,7 @@
                             >
                                 <el-tag
                                     v-for="(tag, index) in nodeItem.value"
-                                    :key="tag.id"
+                                    :key="tag.value || tag.id || index"
                                     closable
                                     style="margin-top:15px;margin-right:15px"
                                     @close="handleClose(index)"
@@ -118,6 +118,9 @@ export default {
             this.drawerVisible = true
             this.$nextTick().then(() => {
                 this.nodeItem = JSON.parse(JSON.stringify(this.nodeInfo))
+                if (!this.nodeItem.value) {
+                    this.$set(this.nodeItem, 'value', [])
+                }
                 if (!this.nodeItem.way) {
                     this.$set(this.nodeItem, 'way', 1)
                 }
@@ -157,10 +160,10 @@ export default {
             this.nodeItem.value.splice(index, 1)
         },
         cleanTags() {
-            this.nodeItem.value = []
+            this.$set(this.nodeItem, 'value', [])
         },
         confirm(value) {
-            this.nodeItem.value = value
+            this.$set(this.nodeItem, 'value', value)
         },
         handleSubmit() {
             if (!this.nodeItem.label) {

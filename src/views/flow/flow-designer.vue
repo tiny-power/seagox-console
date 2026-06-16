@@ -10,7 +10,7 @@
                 <el-button class="button-publish" @click="handlePublish">发 布</el-button>
             </div>
         </div>
-        <div id="relation-box" :style="{ height: height - 60 + 'px' }">
+        <div id="relation-box" :style="{ height: height - 60 + 'px' }" @click="rightClickClose">
             <el-alert
                 title="提示 ：单击流程中的某个节点，可以增加节点、删除当前节点、设置节点属性。"
                 type="warning"
@@ -122,6 +122,31 @@
             </div>
         </div>
         <personnel ref="member" @confirm="personnelConfirm"></personnel>
+        <ul v-show="connVisible" :style="{ left: x + 'px', top: y + 'px' }" class="contextmenu">
+            <li @click="connMenu('setText')">
+                <i class="el-icon-setting" style="color: #000; font-size: 12px; font-weight: bold"> 设置</i>
+            </li>
+        </ul>
+        <el-dialog title="条件设置" :visible.sync="edgeDialogVisible" width="750px">
+            <el-form ref="linkForm" :model="linkForm" label-width="0px" :rules="rules">
+                <el-form-item prop="label">
+                    <el-input v-model="linkForm.label" placeholder="请输入文本"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <formula
+                        :key="formulaKey"
+                        v-model="linkForm.condition"
+                        :height="200"
+                        :variable="variable"
+                        v-if="edgeDialogVisible"
+                    ></formula>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="edgeDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="handleEdgeText">确 定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -129,9 +154,11 @@
 import { jsPlumb } from 'jsplumb'
 import dagre from 'dagre'
 import personnel from '@/views/flow/personnel'
+import formula from '@/views/components/codemirror/formula'
 export default {
     components: {
-        personnel
+        personnel,
+        formula
     },
     data() {
         return {
@@ -163,7 +190,21 @@ export default {
             edges: [],
             form: {},
             variable: [],
-            currentId: ''
+            currentId: '',
+            currentNodeType: 'userTask',
+            x: 0,
+            y: 0,
+            connVisible: false,
+            contextConn: {},
+            edgeDialogVisible: false,
+            linkForm: {
+                label: '',
+                condition: ''
+            },
+            rules: {
+                label: [{ required: true, message: '请输入文本', trigger: 'blur' }]
+            },
+            formulaKey: 0
         }
     },
     computed: {
@@ -246,11 +287,29 @@ export default {
                                     { label: item.label, location: 0.5, id: 'label', cssClass: 'process-point-label' }
                                 ]
                             ]
+                        } else {
+                            item.overlays = []
                         }
                         let connect = this.jsPlumbInstance.connect(item, this.jsPlumbConnectOptions)
                         if (item.condition) {
                             connect.setParameter('condition', item.condition)
                         }
+                    })
+                    this.jsPlumbInstance.bind('contextmenu', (conn, event) => {
+                        let node = this.nodes.filter(item => {
+                            return item.id === conn.sourceId
+                        })[0]
+                        if (!node || node.type !== 'exclusiveGateway') {
+                            return
+                        }
+                        if (event) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            this.x = event.pageX
+                            this.y = event.pageY
+                        }
+                        this.contextConn = conn
+                        this.connVisible = true
                     })
                 })
             })
@@ -275,11 +334,15 @@ export default {
             for (let i = 0; i < this.nodes.length; i++) {
                 let node = this.nodes[i]
                 if (node.type === 'exclusiveGateway') {
-                    let targetList = edgesObj[node.id]
+                    let targetList = edgesObj[node.id] || []
+                    if (targetList.length === 0) {
+                        this.$message.error(node.label + '节点未连线')
+                        return
+                    }
                     for (let j = 0; j < targetList.length; j++) {
                         let edge = targetList[j]
                         if (!(edge.label && edge.condition)) {
-                            this.$message.error('排他网关出口线未设置条件')
+                            this.$message.error('条件分支出口线未设置条件')
                             return
                         }
                     }
@@ -306,6 +369,7 @@ export default {
         handleNode(node, type) {
             this.currentId = node.id
             if (type === 'userTask') {
+                this.currentNodeType = type
                 if (
                     node.type === 'start' ||
                     node.type === 'parallelGateWay' ||
@@ -317,6 +381,7 @@ export default {
                     this.$refs.member.showDialog([], true)
                 }
             } else if (type === 'ccTask') {
+                this.currentNodeType = type
                 if (
                     node.type === 'start' ||
                     node.type === 'parallelGateWay' ||
@@ -566,6 +631,7 @@ export default {
         },
         personnelConfirm(flowType, memberList) {
             // flowType 0:串发;1:并发;2:会签;
+            let nodeType = this.currentNodeType === 'ccTask' ? 'ccTask' : 'userTask'
             let edgesObj = {}
             for (let i = 0; i < this.edges.length; i++) {
                 let edge = this.edges[i]
@@ -599,7 +665,7 @@ export default {
                     let nodeId = Math.random().toString(36).slice(-6)
                     this.nodes.push({
                         id: nodeId,
-                        type: 'userTask',
+                        type: nodeType,
                         label: memberList[i].name,
                         value: [memberList[i]]
                     })
@@ -635,7 +701,7 @@ export default {
                         let nodeId = Math.random().toString(36).slice(-6)
                         this.nodes.push({
                             id: nodeId,
-                            type: 'userTask',
+                            type: nodeType,
                             label: memberList[i].name,
                             value: [memberList[i]]
                         })
@@ -669,7 +735,7 @@ export default {
                         let nodeId = Math.random().toString(36).slice(-6)
                         this.nodes.push({
                             id: nodeId,
-                            type: 'userTask',
+                            type: nodeType,
                             label: memberList[i].name,
                             value: [memberList[i]]
                         })
@@ -708,7 +774,7 @@ export default {
                         let nodeId = Math.random().toString(36).slice(-6)
                         this.nodes.push({
                             id: nodeId,
-                            type: 'userTask',
+                            type: nodeType,
                             label: memberList[i].name,
                             value: [memberList[i]]
                         })
@@ -749,7 +815,7 @@ export default {
                         let nodeId = Math.random().toString(36).slice(-6)
                         this.nodes.push({
                             id: nodeId,
-                            type: 'userTask',
+                            type: nodeType,
                             label: memberList[i].name,
                             value: [memberList[i]]
                         })
@@ -772,6 +838,50 @@ export default {
             this.$router.replace({
                 path: '/flowDesignerSenior',
                 query: this.$route.query
+            })
+        },
+        rightClickClose() {
+            this.connVisible = false
+        },
+        connMenu(command) {
+            if (command === 'setText') {
+                this.edgeDialogVisible = true
+                for (let i = 0; i < this.edges.length; i++) {
+                    if (
+                        this.edges[i].source === this.contextConn.sourceId &&
+                        this.edges[i].target === this.contextConn.targetId
+                    ) {
+                        this.linkForm = {
+                            label: this.edges[i].label || '',
+                            condition: this.edges[i].condition || ''
+                        }
+                        break
+                    }
+                }
+                this.formulaKey++
+            }
+            this.connVisible = false
+        },
+        handleEdgeText() {
+            this.$refs.linkForm.validate(valid => {
+                if (valid) {
+                    if (!this.linkForm.condition) {
+                        this.$message.error('请输入公式')
+                        return
+                    }
+                    for (let i = 0; i < this.edges.length; i++) {
+                        if (
+                            this.edges[i].source === this.contextConn.sourceId &&
+                            this.edges[i].target === this.contextConn.targetId
+                        ) {
+                            this.$set(this.edges[i], 'label', this.linkForm.label)
+                            this.$set(this.edges[i], 'condition', this.linkForm.condition)
+                            break
+                        }
+                    }
+                    this.drawLines()
+                    this.edgeDialogVisible = false
+                }
             })
         }
     }
@@ -980,6 +1090,29 @@ export default {
 }
 ::v-deep .jtk-connector {
     cursor: pointer;
+}
+.contextmenu {
+    margin: 0;
+    background: #fff;
+    z-index: 3000;
+    position: absolute;
+    list-style-type: none;
+    padding: 5px 0;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.contextmenu li {
+    margin: 0;
+    padding: 7px 16px;
+    cursor: pointer;
+}
+
+.contextmenu li:hover {
+    background: #eee;
 }
 .contextMenu {
     font-size: 12px;

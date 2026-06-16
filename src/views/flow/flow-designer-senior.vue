@@ -49,13 +49,13 @@
                 <i class="el-icon-s-custom type-icon" style="color: #22242a" v-if="item.type === 'userTask'"></i>
                 <i class="el-icon-s-promotion type-icon" style="color: #22242a" v-if="item.type === 'ccTask'"></i>
                 <i class="el-icon-s-tools type-icon" style="color: #22242a" v-if="item.type === 'scriptTask'"></i>
-                <div v-if="item.type === 'parallelGateWay'">
+                <div class="gateway-content" v-if="item.type === 'parallelGateWay'">
                     <i class="el-icon-plus" style="font-weight: bold"></i>
                 </div>
-                <div v-if="item.type === 'exclusiveGateway'">
+                <div class="gateway-content" v-if="item.type === 'exclusiveGateway'">
                     <i class="el-icon-close" style="font-weight: bold"></i>
                 </div>
-                <div v-if="item.type === 'manualTask'">
+                <div class="gateway-content" v-if="item.type === 'manualTask'">
                     <i class="el-icon-rank" style="font-weight: bold"></i>
                 </div>
             </div>
@@ -150,7 +150,8 @@ export default {
                     fill: '#fff'
                 },
                 PaintStyle: { stroke: '#22242A', strokeWidth: 2, outlineStroke: '#f7f8fa' },
-                Overlays: [['Arrow', { width: 10, length: 10, location: 1 }]]
+                Overlays: [['Arrow', { width: 10, length: 10, location: 1 }]],
+                Container: 'relation-box'
             },
             jsPlumbConnectOptions: {
                 isSource: true,
@@ -252,6 +253,7 @@ export default {
                     this.jsPlumbInstance = jsPlumb.getInstance()
 
                     this.jsPlumbInstance.importDefaults(this.jsPlumbSetting)
+                    this.jsPlumbInstance.setContainer('relation-box')
                     this.nodes.forEach(item => {
                         this.addEndpoint(item.id)
                     })
@@ -269,9 +271,6 @@ export default {
                         if (item.condition) {
                             connect.setParameter('condition', item.condition)
                         }
-                    })
-                    this.nodes.forEach(item => {
-                        this.addEndpoint(item.id)
                     })
 
                     //删除新连接或现有连接时触发此事件
@@ -957,25 +956,27 @@ export default {
 .parallelGateWay,
 .manualTask {
     position: absolute;
-    border: 2px solid #22242a;
     width: 60px;
     height: 60px;
-    transform: rotate(45deg) scale(0.75);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
     cursor: pointer;
 }
-.exclusiveGateway:focus,
-.parallelGateWay:focus,
-.manualTask:focus {
-    transform: translateX(-40px) rotate(45deg) scale(0.75);
+
+.gateway-content {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #22242a;
+    box-sizing: border-box;
+    background-color: #fff;
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.exclusiveGateway i,
-.parallelGateWay i,
-.manualTask i {
+.gateway-content i {
     transform: rotate(-45deg) scale(3);
 }
 

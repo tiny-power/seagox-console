@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="container">
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/company')">
                     <div
                         class="content-icon"
@@ -10,7 +10,7 @@
                 </div>
                 <div class="title">组织架构</div>
             </div>
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/menu')">
                     <div
                         class="content-icon"
@@ -19,7 +19,7 @@
                 </div>
                 <div class="title">菜单管理</div>
             </div>
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/taskScheduler')">
                     <div
                         class="content-icon"
@@ -28,7 +28,7 @@
                 </div>
                 <div class="title">定时任务</div>
             </div>
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/dic')">
                     <div
                         class="content-icon"
@@ -37,7 +37,7 @@
                 </div>
                 <div class="title">数据字典</div>
             </div>
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/flow')">
                     <div
                         class="content-icon"
@@ -46,7 +46,7 @@
                 </div>
                 <div class="title">流程定义</div>
             </div>
-            <div>
+            <div class="plugin-item">
                 <div class="content" @click="handleClick('/log')">
                     <div
                         class="content-icon"
@@ -56,33 +56,6 @@
                 <div class="title">系统日记</div>
             </div>
         </div>
-        <!-- <div class="container">
-            <div>
-                <div class="not-content">
-                    <div class="content-icon"></div>
-                </div>
-            </div>
-            <div>
-                <div class="not-content">
-                    <div class="content-icon"></div>
-                </div>
-            </div>
-            <div>
-                <div class="not-content">
-                    <div class="content-icon"></div>
-                </div>
-            </div>
-            <div>
-                <div class="not-content">
-                    <div class="content-icon"></div>
-                </div>
-            </div>
-            <div>
-                <div class="not-content">
-                    <div class="content-icon"></div>
-                </div>
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -103,12 +76,17 @@ export default {
 
 <style scoped>
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 28px 60px;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+    gap: 28px;
     align-items: center;
     padding: 20px 40px;
+}
+.plugin-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
 }
 .content {
     padding: 28px;
