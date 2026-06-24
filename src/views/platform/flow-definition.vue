@@ -131,7 +131,7 @@ export default {
                 { value: 'payment_request', label: '请款单' }
             ],
             searchForm: {
-                businessType: 'leave_request',
+                businessType: '',
                 name: ''
             },
             addFormVisible: false,
@@ -161,7 +161,7 @@ export default {
             this.searchForm.businessType = String(this.$route.query.id)
         }
         if (!this.businessTypeOptions.some(item => item.value === this.searchForm.businessType)) {
-            this.searchForm.businessType = 'leave_request'
+            this.searchForm.businessType = ''
         }
         this.queryByPage()
     },
@@ -214,13 +214,8 @@ export default {
             }
         },
         async showAddDialog() {
-            let businessType = this.searchForm.businessType || 'leave_request'
-            if (await this.hasBusinessTypeDefinition(businessType)) {
-                this.$message.warning('该业务类型已存在流程定义')
-                return
-            }
             this.addForm = {
-                businessType,
+                businessType: this.searchForm.businessType || '',
                 name: ''
             }
             this.addFormVisible = true
@@ -232,11 +227,21 @@ export default {
         },
         async hasBusinessTypeDefinition(businessType) {
             let res = await this.$axios.get('flow/queryByBusinessType/' + encodeURIComponent(businessType))
-            return res.data.code == 200 && res.data.data && res.data.data.length > 0
+            if (res.data.code != 200 || !res.data.data) {
+                return false
+            }
+            if (Array.isArray(res.data.data)) {
+                return res.data.data.length > 0
+            }
+            return Object.keys(res.data.data).length > 0
         },
         addSubmit() {
-            this.$refs.addForm.validate(valid => {
+            this.$refs.addForm.validate(async valid => {
                 if (valid) {
+                    if (await this.hasBusinessTypeDefinition(this.addForm.businessType)) {
+                        this.$message.warning('该业务类型已存在流程定义')
+                        return
+                    }
                     var params = {
                         businessType: this.addForm.businessType,
                         name: this.addForm.name,
