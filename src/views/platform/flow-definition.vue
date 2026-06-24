@@ -126,7 +126,10 @@ export default {
             pageNo: 1,
             pageSize: 10,
             total: 0,
-            businessTypeOptions: [{ value: 'leave_request', label: '请假单' }],
+            businessTypeOptions: [
+                { value: 'leave_request', label: '请假单' },
+                { value: 'payment_request', label: '请款单' }
+            ],
             searchForm: {
                 businessType: 'leave_request',
                 name: ''
