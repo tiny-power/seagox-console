@@ -2,7 +2,6 @@ const CompressionPlugin = require('compression-webpack-plugin')
 const ThemeColorReplacer = require('webpack-theme-color-replacer')
 const forElementUI = require('webpack-theme-color-replacer/forElementUI')
 module.exports = {
-    publicPath: '/console/',
     runtimeCompiler: true,
     productionSourceMap: false,
     devServer: {

@@ -1,6 +1,6 @@
 window.platform = {
-    url: 'https://api.seagox.com',
-    title: 'Tiny Platform',
+    url: 'https://api.zcjzdesign.com',
+    title: '正初工程管理系统',
     backgroundImage: 'assets/back.png',
     switchCompany: true
 }
